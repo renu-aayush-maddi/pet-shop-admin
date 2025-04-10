@@ -1,69 +1,112 @@
 import Vendor from "../models/vendor.model.js";
 
-// @desc Get all vendors
-// @route GET /api/admin/vendors
-export const getAllVendors = async (req, res) => {
-  try {
-    const vendors = await Vendor.find();
-    res.status(200).json(vendors);
-  } catch (error) {
-    res.status(500).json({ message: error.message });
-  }
+const vendorController = {
+  getVendors: async (req, res) => {
+    try {
+      const vendors = await Vendor.find();
+      res.status(200).json(vendors);
+    } catch (error) {
+      res.status(500).json({ error: error.message });
+    }
+  },
+  createVendor: async (req, res) => {
+    try {
+      const newVendor = await Vendor.create(req.body);
+      res.status(201).json(newVendor);
+    } catch (error) {
+      res.status(500).json({ error: error.message });
+    }
+  },
+  getVendor: async (req, res) => {
+    try {
+      const vendor = await Vendor.findById(req.params.id);
+      if (!vendor) {
+        return res.status(404).json({ message: "Vendor not found" });
+      }
+      res.status(200).json(vendor);
+    } catch (error) {
+      res.status(500).json({ error: error.message });
+    }
+  },
+  updateVendor: async (req, res) => {
+    try {
+      const updatedVendor = await Vendor.findByIdAndUpdate(
+        req.params.id,
+        req.body,
+        { new: true }
+      );
+      if (!updatedVendor) {
+        return res.status(404).json({ message: "Vendor not found" });
+      }
+      res.status(200).json(updatedVendor);
+    } catch (error) {
+      res.status(500).json({ error: error.message });
+    }
+  },
+  deleteVendor: async (req, res) => {
+    try {
+      const deletedVendor = await Vendor.findByIdAndDelete(req.params.id);
+      if (!deletedVendor) {
+        return res.status(404).json({ message: "Vendor not found" });
+      }
+      res.status(200).json({ message: "Vendor deleted successfully" });
+    } catch (error) {
+      res.status(500).json({ error: error.message });
+    }
+  },
+  approveVendor: async (req, res) => {
+    try {
+      const vendor = await Vendor.findById(req.params.id);
+      if (!vendor) {
+        return res.status(404).json({ message: "Vendor not found" });
+      }
+      vendor.approved = true;
+      await vendor.save();
+      res.status(200).json({ message: "Vendor approved successfully" });
+    } catch (error) {
+      res.status(500).json({ error: error.message });
+    }
+  },
+  rejectVendor: async (req, res) => {
+    try {
+      const vendor = await Vendor.findById(req.params.id);
+      if (!vendor) {
+        return res.status(404).json({ message: "Vendor not found" });
+      }
+      vendor.approved = false;
+      await vendor.save();
+      res.status(200).json({ message: "Vendor rejected successfully" });
+    } catch (error) {
+      res.status(500).json({ error: error.message });
+    }
+  },
+  getApprovedVendors: async (req, res) => {
+    try {
+      const vendors = await Vendor.find({ approved: true });
+      res.status(200).json(vendors);
+    } catch (error) {
+      res.status(500).json({ error: error.message });
+    }
+  },
+  getUnapprovedVendors: async (req, res) => {
+    try {
+      const vendors = await Vendor.find({ approved: false });
+      res.status(200).json(vendors);
+    } catch (error) {
+      res.status(500).json({ error: error.message });
+    }
+  },
+  getVendorByEmail: async (req, res) => {
+    try {
+      const vendor = await Vendor.findOne({ email: req.params.email });
+      if (!vendor) {
+        return res.status(404).json({ message: "Vendor not found" });
+      }
+      res.status(200).json(vendor);
+    } catch (error) {
+      res.status(500).json({ error: error.message });
+    }
+  },
 };
 
-// @desc Get vendor by ID
-// @route GET /api/admin/vendors/:id
-export const getVendorById = async (req, res) => {
-  try {
-    const vendor = await Vendor.findById(req.params.id);
-    if (!vendor) return res.status(404).json({ message: "Vendor not found" });
-    res.status(200).json(vendor);
-  } catch (error) {
-    res.status(500).json({ message: error.message });
-  }
-};
-
-// @desc Create a new vendor
-// @route POST /api/admin/vendors
-export const createVendor = async (req, res) => {
-  try {
-    const { name, email, phone, shopName, address } = req.body;
-    const vendor = await Vendor.create({
-      name,
-      email,
-      phone,
-      shopName,
-      address,
-    });
-    res.status(201).json({ message: "Vendor created successfully", vendor });
-  } catch (error) {
-    res.status(500).json({ message: error.message });
-  }
-};
-
-// @desc Update a vendor
-// @route PUT /api/admin/vendors/:id
-export const updateVendor = async (req, res) => {
-  try {
-    const vendor = await Vendor.findByIdAndUpdate(req.params.id, req.body, {
-      new: true,
-      runValidators: true,
-    });
-    if (!vendor) return res.status(404).json({ message: "Vendor not found" });
-    res.status(200).json({ message: "Vendor updated successfully", vendor });
-  } catch (error) {
-    res.status(500).json({ message: error.message });
-  }
-};
-
-// @desc Delete a vendor
-// @route DELETE /api/admin/vendors/:id
-export const deleteVendor = async (req, res) => {
-  try {
-    const vendor = await Vendor.findByIdAndDelete(req.params.id);
-    if (!vendor) return res.status(404).json({ message: "Vendor not found" });
-    res.status(200).json({ message: "Vendor deleted successfully" });
-  } catch (error) {
-    res.status(500).json({ message: error.message });
-  }
-};
+export default vendorController;

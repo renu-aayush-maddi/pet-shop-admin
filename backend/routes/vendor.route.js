@@ -1,21 +1,19 @@
+import vendorController from "../controllers/vendor.controller.js";
 import express from "express";
 const router = express.Router();
-import * as vendorController from "../controllers/vendor.controller.js";
 
-
-// Get all vendors
-router.get("/", vendorController.getAllVendors);
-
-// Get a single vendor by ID
-router.get("/:id", vendorController.getVendorById);
-
-// Create a new vendor
-router.post("/", vendorController.createVendor);
-
-// Update vendor details
+router.post("/create", vendorController.createVendor);
+router.get("/", vendorController.getVendors);
+router.get("/:id", vendorController.getVendor);
 router.put("/:id", vendorController.updateVendor);
-
-// Delete a vendor
 router.delete("/:id", vendorController.deleteVendor);
+router.put("/approve/:id", vendorController.approveVendor);
+router.put("/reject/:id", vendorController.rejectVendor);
+router.get("/approved", vendorController.getApprovedVendors);
+router.get("/unapproved", vendorController.getUnapprovedVendors);
+// router.get("/search/:query", vendorController.searchVendors);
+router.get("/getbyemail/:email", vendorController.getVendorByEmail);
+
+// router.get("/getbyphone/:phone", vendorController.getVendorByPhone);
 
 export default router;
